@@ -6,7 +6,7 @@ from numpy import *
 
 niter = 100
 stepsize = 1 / 8
-plot_distance = []
+plot_f = []
 xopt = 0
 best_alpha = 1
 best_beta = 1
@@ -27,15 +27,27 @@ def getB_BasedOnX(xk1):
         return 0
 
 
+def getF(xk1):
+    if xk1 < -3:
+        return 8 * xk1 * xk1 + 45 * xk1 + 67.5
+    elif xk1 < 0:
+        return 0.5 * xk1 * xk1
+    else:
+        return 8 * xk1 * xk1
+
+
 def get_gradient(xk1):
     return getQ_BasedOnX(xk1) * xk1 + getB_BasedOnX(xk1)
 
 
 def compute_convergence(alpha1, beta1, plot=False):
-    global best_closeness, best_alpha, best_beta, plot_distance
+    global best_closeness, best_alpha, best_beta, plot_f
     xk = 2
     xk_last = 2
     for k in range(niter):
+        if plot:
+            plot_f.append(getF(xk))
+
         diff_last_two = beta1 * (xk - xk_last)
         xk_last = xk
         xk = xk - alpha1 * get_gradient(xk + diff_last_two) + diff_last_two
@@ -43,8 +55,6 @@ def compute_convergence(alpha1, beta1, plot=False):
         if distance == 0:
             print("solutions: ", best_closeness, best_alpha, best_beta)
 
-        if plot:
-            plot_distance.append(distance)
         if distance < best_closeness:
             best_closeness = distance
             best_alpha = alpha1
@@ -57,6 +67,6 @@ for alpha in arange(0.0, 1.0, 0.01):
 
 print(best_closeness, best_alpha, best_beta)
 
-compute_convergence(1/16, 3/5, True)
-plt.plot(log(plot_distance))
+compute_convergence(1/16, 0, True)
+plt.plot(log(plot_f))
 plt.show()
