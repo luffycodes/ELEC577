@@ -53,7 +53,7 @@ def compute_convergence(alpha1, beta1, plot=False):
         xk = xk - alpha1 * get_gradient(xk + diff_last_two) + diff_last_two
         distance = linalg.norm(xk - xopt)
         if distance < 0.0001:
-            if k < 10:
+            if k < 10 and not plot:
                 print("solutions: ", best_closeness, best_alpha, best_beta, k)
                 break
 
@@ -69,6 +69,8 @@ for alpha in arange(0.0, 1.0, 0.01):
 
 print(best_closeness, best_alpha, best_beta)
 
-compute_convergence(1/16, 0, True)
+compute_convergence(1 / 16, 3/5, True)
 plt.plot(log(plot_f))
+plt.xlabel("iterations")
+plt.ylabel("log(f(x))")
 plt.show()
