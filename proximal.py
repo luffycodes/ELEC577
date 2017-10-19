@@ -66,6 +66,8 @@ for i in np.arange(1, 1000, 1):
     distance.append(np.linalg.norm(x_k - x))
 
 plt.plot(np.log(distance), label="FISTA")
+plt.xlabel("iterations")
+plt.ylabel("log(norm(x-x_optimal))")
 
 plt.legend()
 plt.show()
