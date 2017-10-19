@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random as random
 
-lambda_param = 0.01
+lambda_param = 0.001
 
 
 def getProx(x1):
@@ -29,7 +29,7 @@ x_k = np.random.randn(1000)
 # Subgradient descent
 ata = np.dot(A.transpose(), A)
 aty = np.dot(A.transpose(), y)
-c = 0.0001
+c = 0.001
 distance = []
 print(np.shape(ata), np.shape(aty))
 for i in np.arange(1, 1000, 1):
@@ -38,7 +38,7 @@ for i in np.arange(1, 1000, 1):
     x_k = x_k - (c / i) * subg
     distance.append(np.linalg.norm(x_k - x))
 
-# plt.plot(np.log(distance), label="subg")
+plt.plot(np.log(distance), label="subg")
 
 # ISTA
 alpha = 0.0001
@@ -54,7 +54,6 @@ plt.plot(np.log(distance), label="ISTA")
 
 # ISTA
 alpha = 0.0001
-gamma = -0.4
 distance = []
 x_k = np.random.randn(1000)
 x_k_prev = getProx(np.random.randn(1000))
@@ -62,7 +61,7 @@ for i in np.arange(1, 1000, 1):
     df = np.dot(ata, x_k) - aty
     x_k = x_k - alpha * df
     prox = getProx(x_k)
-    x_k = (1 - gamma) * prox + gamma * x_k_prev
+    x_k = prox + (i-2)/(i+1) * (prox - x_k_prev)
     x_k_prev = prox
     distance.append(np.linalg.norm(x_k - x))
 
