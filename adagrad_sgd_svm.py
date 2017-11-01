@@ -67,6 +67,7 @@ H_2 = np.zeros(n)
 for i in range(1, 100000):
     i_rand = random.randint(0, m - 1)
     cond = 1 - b[i_rand] * np.dot(A[i_rand], x_rand)
+    g = np.zeros(n)
     if cond > 0:
         g = -1 * b[i_rand] * A[i_rand]
         update = np.zeros(n)
@@ -81,9 +82,8 @@ for i in range(1, 100000):
         for j in range(1, m + 1):
             fx_k = fx_k + np.maximum(0, 1 - b[j - 1] * np.dot(A[j - 1], x_rand))
         fx_k = fx_k / m
-        norm = np.linalg.norm(fx - fx_k)
-        distance.append(norm)
-        print("ada:step:", i, " & error:", norm)
+        distance.append(fx_k - fx)
+        print("ada:step:", i, " & error:", fx_k - fx)
 
 plt.plot(distance, label="Adagrad")
 
@@ -103,9 +103,8 @@ for i in range(1, 100000):
         for j in range(1, m + 1):
             fx_k = fx_k + np.maximum(0, 1 - b[j - 1] * np.dot(A[j - 1], x_rand))
         fx_k = fx_k / m
-        norm = np.linalg.norm(fx - fx_k)
-        distance.append(norm)
-        print("sgd:step:", i, " & error:", norm)
+        distance.append(fx_k - fx)
+        print("sgd:step:", i, " & error:", fx_k - fx)
 
 plt.plot(distance, label="SGD")
 
