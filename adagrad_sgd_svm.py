@@ -59,19 +59,21 @@ for i in range(1, m + 1):
 fx = fx / m
 
 # Adagrad
-alpha = 0.1
+alpha = 1.2
+delta = 1e-10
 distance = []
 H = np.zeros(n)
-for i in range(1, 200000):
+H_2 = np.zeros(n)
+for i in range(1, 100000):
     i_rand = random.randint(0, m - 1)
     cond = 1 - b[i_rand] * np.dot(A[i_rand], x_rand)
     if cond > 1:
-        g = - b[i_rand] * A[i_rand]
+        g = -1 * b[i_rand] * A[i_rand]
         update = np.zeros(n)
         for j in range(0, n):
-            H[j] = np.sqrt(H[j] * H[j] + g[j] * g[j])
-            if H[j] != 0:
-                update[j] = 1/H[j] * g[j]
+            H_2[j] = H_2[j] + g[j] * g[j]
+            H[j] = np.sqrt(H_2[j])
+            update[j] = (1 / (delta + H[j])) * g[j]
         x_rand = x_rand - alpha * update
 
     if i % 1000 == 0:
@@ -81,7 +83,7 @@ for i in range(1, 200000):
         fx_k = fx_k / m
         norm = np.linalg.norm(fx - fx_k)
         distance.append(norm)
-        print("ada:step:", i, " & error:", norm)
+        print("ada:step:", i, " & error:", norm, " & H_2[555]:", H_2[555], " & H_2[555]:", H[555])
 
 plt.plot(np.log(distance), label="Adagrad")
 
@@ -90,16 +92,16 @@ alpha = 10
 distance = []
 x_rand = np.copy(x_rand_copy)
 
-for i in range(1, 200000):
+for i in range(1, 100000):
     i_rand = random.randint(0, m - 1)
     cond = 1 - b[i_rand] * np.dot(A[i_rand], x_rand)
     if cond > 1:
-        x_rand = x_rand + alpha/np.sqrt(i + 1) * b[i_rand] * A[i_rand]
+        x_rand = x_rand + alpha / np.sqrt(i + 1) * b[i_rand] * A[i_rand]
 
     if i % 1000 == 0:
         fx_k = 0
         for j in range(1, m + 1):
-            fx_k = fx_k + np.maximum(0, 1 - b[j-1] * np.dot(A[j-1], x_rand))
+            fx_k = fx_k + np.maximum(0, 1 - b[j - 1] * np.dot(A[j - 1], x_rand))
         fx_k = fx_k / m
         norm = np.linalg.norm(fx - fx_k)
         distance.append(norm)
@@ -108,7 +110,7 @@ for i in range(1, 200000):
 plt.plot(np.log(distance), label="SGD")
 
 plt.xlabel("iterations")
-plt.ylabel("log(norm(x-x_optimal))")
+plt.ylabel("log(norm(fx-fx_optimal))")
 
 plt.legend()
 plt.show()
