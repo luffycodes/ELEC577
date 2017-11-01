@@ -67,7 +67,7 @@ H_2 = np.zeros(n)
 for i in range(1, 100000):
     i_rand = random.randint(0, m - 1)
     cond = 1 - b[i_rand] * np.dot(A[i_rand], x_rand)
-    if cond > 1:
+    if cond > 0:
         g = -1 * b[i_rand] * A[i_rand]
         update = np.zeros(n)
         for j in range(0, n):
@@ -76,7 +76,7 @@ for i in range(1, 100000):
             update[j] = (1 / H[j]) * g[j]
         x_rand = x_rand - alpha * update
 
-    if i % 1000 == 0:
+    if i % 100 == 0:
         fx_k = 0
         for j in range(1, m + 1):
             fx_k = fx_k + np.maximum(0, 1 - b[j - 1] * np.dot(A[j - 1], x_rand))
@@ -95,10 +95,10 @@ x_rand = np.copy(x_rand_copy)
 for i in range(1, 100000):
     i_rand = random.randint(0, m - 1)
     cond = 1 - b[i_rand] * np.dot(A[i_rand], x_rand)
-    if cond > 1:
+    if cond > 0:
         x_rand = x_rand + alpha / np.sqrt(i + 1) * b[i_rand] * A[i_rand]
 
-    if i % 1000 == 0:
+    if i % 100 == 0:
         fx_k = 0
         for j in range(1, m + 1):
             fx_k = fx_k + np.maximum(0, 1 - b[j - 1] * np.dot(A[j - 1], x_rand))
