@@ -59,8 +59,8 @@ for i in range(1, m + 1):
 fx = fx / m
 
 # Adagrad
-alpha = 1.2
-delta = 1e-10
+alpha = 1
+delta = 1e-8
 distance = []
 H = np.zeros(n)
 H_2 = np.zeros(n)
@@ -72,8 +72,8 @@ for i in range(1, 100000):
         update = np.zeros(n)
         for j in range(0, n):
             H_2[j] = H_2[j] + g[j] * g[j]
-            H[j] = np.sqrt(H_2[j])
-            update[j] = (1 / (delta + H[j])) * g[j]
+            H[j] = np.sqrt(H_2[j] + delta)
+            update[j] = (1 / H[j]) * g[j]
         x_rand = x_rand - alpha * update
 
     if i % 1000 == 0:
@@ -83,9 +83,9 @@ for i in range(1, 100000):
         fx_k = fx_k / m
         norm = np.linalg.norm(fx - fx_k)
         distance.append(norm)
-        print("ada:step:", i, " & error:", norm, " & H_2[555]:", H_2[555], " & H_2[555]:", H[555])
+        print("ada:step:", i, " & error:", norm)
 
-plt.plot(np.log(distance), label="Adagrad")
+plt.plot(distance, label="Adagrad")
 
 # SGD
 alpha = 10
@@ -107,7 +107,7 @@ for i in range(1, 100000):
         distance.append(norm)
         print("sgd:step:", i, " & error:", norm)
 
-plt.plot(np.log(distance), label="SGD")
+plt.plot(distance, label="SGD")
 
 plt.xlabel("iterations")
 plt.ylabel("log(norm(fx-fx_optimal))")
