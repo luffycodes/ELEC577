@@ -3,6 +3,7 @@ import random as random
 import matplotlib.pyplot as plt
 
 sparse = True
+max_norm_constraint = False
 m = 5000
 n = 1000
 A = np.zeros((m, n))
@@ -76,6 +77,9 @@ for i in range(1, 100000):
             H[j] = np.sqrt(H_2[j] + delta)
             update[j] = (1 / H[j]) * g[j]
         x_rand = x_rand - alpha * update
+        if max_norm_constraint:
+            x_rand = np.minimum(np.ones(n), x_rand)
+            x_rand = np.maximum(-1 * np.ones(n), x_rand)
 
     if i % 100 == 0:
         fx_k = 0
@@ -97,6 +101,9 @@ for i in range(1, 100000):
     cond = 1 - b[i_rand] * np.dot(A[i_rand], x_rand)
     if cond > 0:
         x_rand = x_rand + alpha / np.sqrt(i + 1) * b[i_rand] * A[i_rand]
+        if max_norm_constraint:
+            x_rand = np.minimum(np.ones(n), x_rand)
+            x_rand = np.maximum(-1 * np.ones(n), x_rand)
 
     if i % 100 == 0:
         fx_k = 0
@@ -109,7 +116,7 @@ for i in range(1, 100000):
 plt.plot(distance, label="SGD")
 
 plt.xlabel("iterations")
-plt.ylabel("log(norm(fx-fx_optimal))")
+plt.ylabel("fx-fx*")
 
 plt.legend()
 plt.show()
