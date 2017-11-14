@@ -13,6 +13,7 @@ import glob
 import matplotlib.pyplot as plt
 from matplotlib import style
 
+
 def affine(name_scope, input_tensor, out_channels, relu=True):
     input_shape = input_tensor.get_shape().as_list()
     input_channels = input_shape[-1]
@@ -25,6 +26,7 @@ def affine(name_scope, input_tensor, out_channels, relu=True):
             return tf.nn.relu(tf.matmul(input_tensor, weights) + biases)
         else:
             return tf.matmul(input_tensor, weights) + biases
+
 
 class GenericTrainer:
     def __init__(self):
@@ -62,7 +64,8 @@ class GenericTrainer:
         raise "not implemented"
 
     def load_snapshot(self, file_name=None):
-        snapshot_file = file_name if file_name is not None else max(glob.iglob(self._save_path + "/model*"), key=os.path.getctime)
+        snapshot_file = file_name if file_name is not None else max(glob.iglob(self._save_path + "/model*"),
+                                                                    key=os.path.getctime)
         self._saver.restore(self._sess, snapshot_file)
 
     def run_training(self, batch_size, num_examples, num_validation_examples, num_iters, learning_rate):
@@ -76,8 +79,8 @@ class GenericTrainer:
             if step % print_interval == 0 and step > 0:
                 self.print_status(step)
 
-class FtoKTrainer(GenericTrainer):
 
+class FtoKTrainer(GenericTrainer):
     def __init__(self):
         self._n = 100
         self._num_pieces = 3
@@ -109,7 +112,8 @@ class FtoKTrainer(GenericTrainer):
 
     def create_loss(self):
         self._Y_placeholder = tf.placeholder(tf.float32, shape=(None, self._n))
-        self._loss = tf.reduce_mean(tf.reduce_sum(tf.squared_difference(self._p, self._Y_placeholder), reduction_indices=[1]))
+        self._loss = tf.reduce_mean(
+            tf.reduce_sum(tf.squared_difference(self._p, self._Y_placeholder), reduction_indices=[1]))
 
     def create_dict(self, data, indices=None):
         if indices is not None:
@@ -136,8 +140,8 @@ class FtoKTrainer(GenericTrainer):
             plt.show()
             plt.clf()
 
-class FtoKConvTrainer(FtoKTrainer):
 
+class FtoKConvTrainer(FtoKTrainer):
     def create_network(self):
         self._X_placeholder = tf.placeholder(tf.float32, shape=(None, self._n))
         self._F_matrix_col0 = tf.slice(self._X_placeholder, [0, 2], [-1, self._n - 2])
@@ -173,7 +177,8 @@ class FtoKConvTrainer(FtoKTrainer):
         num_examples = 10
         if self._validation_data is None:
             self._validation_data = self.create_data(num_examples)
-        p_ = self._sess.run(self._p, feed_dict=self.create_dict(self._validation_data, range(num_examples))).reshape(-1, self._n)
+        p_ = self._sess.run(self._p, feed_dict=self.create_dict(self._validation_data, range(num_examples))).reshape(-1,
+                                                                                                                     self._n)
         for i in range(num_examples):
             style.use('ggplot')
             plt.plot(self._x, self._validation_data['X'][i, :], 'b-', lw=4.1)
@@ -181,8 +186,8 @@ class FtoKConvTrainer(FtoKTrainer):
             plt.show()
             plt.clf()
 
-class FtoKConvCondTrainer(FtoKConvTrainer):
 
+class FtoKConvCondTrainer(FtoKConvTrainer):
     def create_network(self):
         self._np_cond_mat = None
         self._X_placeholder = tf.placeholder(tf.float32, shape=(None, self._n))
@@ -206,7 +211,7 @@ class FtoKConvCondTrainer(FtoKConvTrainer):
         self._np_cond_mat = np.matmul(np.matmul(V, np.diag(s ** (-0.5))), V.T)
 
     def create_dict(self, data, indices=None):
-        assert(self._np_cond_mat is not None)
+        assert (self._np_cond_mat is not None)
         if indices is not None:
             return {self._X_placeholder: data['X'][indices], self._conditioner: self._np_cond_mat,
                     self._Y_placeholder: data['Y'][indices]}
@@ -214,8 +219,8 @@ class FtoKConvCondTrainer(FtoKConvTrainer):
             return {self._X_placeholder: data['X'], self._conditioner: self._np_cond_mat,
                     self._Y_placeholder: data['Y']}
 
-class FAutoEncoderTrainer(GenericTrainer):
 
+class FAutoEncoderTrainer(GenericTrainer):
     def __init__(self):
         self._n = 100
         self._num_pieces = 3
@@ -234,14 +239,14 @@ class FAutoEncoderTrainer(GenericTrainer):
                     (1, n)).reshape(m, k, n).transpose(0, 2, 1)
         c = np.tile(coeffs.reshape(m * k, 1),
                     (1, n)).reshape(m, k, n).transpose(0, 2, 1)
-        f = np.sum(np.maximum(0, xx - t)*c, axis=2)
+        f = np.sum(np.maximum(0, xx - t) * c, axis=2)
         return f.astype(dtype=np.float32)
 
     def create_network(self):
         self._f_placeholder = tf.placeholder(tf.float32, shape=(self._batchsize, self._n))
         h1 = affine("affine1", self._f_placeholder, 500)
         h2 = affine("affine2", h1, 100)
-        self._p = affine("affine3", h2, self._num_pieces*2)
+        self._p = affine("affine3", h2, self._num_pieces * 2)
 
     def create_loss(self):
         h1 = affine("affine4", self._p, 100)
@@ -259,10 +264,10 @@ class FAutoEncoderTrainer(GenericTrainer):
         num_valid_iters = len(self._validation_data) // self._batchsize
         validation_loss = 0
         for i in range(num_valid_iters):
-            examples = [j+i*self._batchsize for j in range(self._batchsize)]
+            examples = [j + i * self._batchsize for j in range(self._batchsize)]
             validation_loss += self._sess.run(self._loss,
                                               feed_dict=self.create_dict(self._validation_data, examples))
-        print('Step %d: validation loss = %.4f' % (step, validation_loss/num_valid_iters))
+        print('Step %d: validation loss = %.4f' % (step, validation_loss / num_valid_iters))
         self._saver.save(self._sess, self._save_path + "/model", global_step=step)
 
     def visualize(self):
@@ -274,14 +279,16 @@ class FAutoEncoderTrainer(GenericTrainer):
             plt.plot(self._x, f[i, :], 'b-', self._x, f_[i, :], 'r-')
             plt.show()
 
+
 def condition_per_n(start, stop, step):
     c = []
-    for n in range(start,stop,step):
+    for n in range(start, stop, step):
         x = np.array(range(n), dtype=np.float32)[:, np.newaxis]
         W = np.hstack([np.maximum(0, x - i + 1) for i in range(n)])
         s = np.linalg.svd(W, compute_uv=False)
-        c.append(s[0]/s[-1])
+        c.append(s[0] / s[-1])
     (c - np.array([v * v for v in range(start, stop, step)])) / c
+
 
 def get_command_line_args():
     parser = argparse.ArgumentParser()
@@ -295,6 +302,7 @@ def get_command_line_args():
     parser.add_argument("--learning_rate", default=0.01, type=float, help='batch size')
     args = parser.parse_args()
     return args
+
 
 def main(args):
     if args.FtoK:
@@ -317,8 +325,8 @@ def main(args):
         trainer.run_training(trainer._batchsize, 10000, 1000, 10000, 0.001)
         trainer.visualize()
 
+
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
     args = get_command_line_args()
     main(args)
-
