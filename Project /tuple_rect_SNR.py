@@ -94,7 +94,7 @@ def run_SNR_estimation(args):
                                                                                             loss}
                     gav_ops = {approach: optimizer.compute_gradients(loss[approach], my_var) for approach in loss}
                     print('Calculating Gradients')
-                    for step in xrange(N // BATCH_SIZE):
+                    for step in range(N // BATCH_SIZE):
                         sys.stderr.write('\r%d/%d' % (step, N // BATCH_SIZE))
                         x, y, y_sup = data_set.next_batch(BATCH_SIZE)
                         fd = {images_placeholder: x, Y_placeholder: y, Y_sup_placeholder: y_sup}
