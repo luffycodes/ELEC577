@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 n = 100
 sines = []
+noise_std = 5
 for i in range(1024):
     sines.append(np.cos(2 * np.pi * i * (n / 1024) - np.pi/4))
 
@@ -13,7 +14,7 @@ s = 1
 e = 1000
 gap = 1
 for trial in np.arange(s, e, gap):
-    noise = np.random.normal(scale=1, size=1024)
+    noise = np.random.normal(scale=noise_std, size=1024)
 
     phase_estimate.append(0)
     num = 0
