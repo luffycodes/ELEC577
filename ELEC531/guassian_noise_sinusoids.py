@@ -16,11 +16,15 @@ for trial in np.arange(s, e, gap):
     noise = np.random.normal(scale=1, size=1024)
 
     phase_estimate.append(0)
+    num = 0
+    den = 0
     for k in range(1024):
-        num = (sines[k] + noise[k]) * np.sin(2 * np.pi * k * (n / 1024))
-        den = (sines[k] + noise[k]) * np.cos(2 * np.pi * k * (n / 1024))
-        phase_estimate[i] = phase_estimate[i] + num/den
+        num = num + (sines[k] + noise[k]) * np.sin(2 * np.pi * k * (n / 1024))
+        den = den + (sines[k] + noise[k]) * np.cos(2 * np.pi * k * (n / 1024))
 
-    phase_estimate[i] = np.arctan(phase_estimate[i])
+    phase_estimate[i] = np.arctan(num/den)
     print(str(trial) + " " + str(phase_estimate[i]))
     i = i + 1
+
+print(np.mean(phase_estimate))
+print(np.std(phase_estimate))
