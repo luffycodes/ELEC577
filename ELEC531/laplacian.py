@@ -11,11 +11,15 @@ for i in range(1024):
 
 mle = []
 i = 0
-for j in np.arange(0.5, 1.5, 0.1):
+s = 0.95
+e = 1.05
+gap = 0.001
+for j in np.arange(s, e, gap):
     mle.append(0)
     for k in range(1024):
         mle[i] = mle[i] + np.sign(sines[k] + noise[k] - j * sines[k]) * sines[k]
+    print(str(j) + " " + str(mle[i]))
     i = i + 1
 
-plt.plot(np.arange(0.5, 1.5, 0.1), mle)
+plt.plot(np.arange(s, e, gap), mle)
 plt.show()
